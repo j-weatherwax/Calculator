@@ -122,8 +122,6 @@ class helperCommands():
             else:
                 self.userString += str(i)
             self.gui.opBox.config(text = self.userString)
-        
-        #print(i, self.userString, self.functionString)
 
         if str(i).isdigit() or i == ".":
             #Allows number to stay in textBox until another number is clicked
@@ -146,9 +144,6 @@ class helperCommands():
 
         #resets math flag since i should be a number or . if it reaches this
         self.math = FALSE
-        
-        #print(self.functionString)
-        #print(eval(".2+6="))
 
     def firstNumGet(self):
         if "=" in self.userString:
