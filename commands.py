@@ -92,8 +92,6 @@ class helperCommands():
         self.gui.textBox.insert("end", f"{temp}")#:.0f}")
         return
 
-#commenting here 
-
     def click(self, i):
         #if operation in oplist already exists in the user string,
         #don't allow button to be pressed
