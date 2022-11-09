@@ -1,5 +1,6 @@
 from tkinter import *
 from math import sqrt
+from decimal import *
 
 class helperCommands():
     def __init__(self, gui):
@@ -63,24 +64,28 @@ class helperCommands():
             self.clear_entry()
         
         if func == "perc":
-            temp = float(textVal) / 100
+            temp = Decimal(textVal) / 100
             funcTempString = f"{temp}"
         if func == "inv":
-            temp = 1/float(textVal)
+            temp = 1/Decimal(textVal)
             funcTempString = f"inv({textVal})"
         if func == "sqr":
-            temp = float(textVal)**2
+            temp = Decimal(textVal)**2
             funcTempString = f"sqr({textVal})"
         if func == "sqrt":
-            temp = sqrt(float(textVal))
+            temp = sqrt(Decimal(textVal))
             funcTempString = f"sqrt({textVal})"
         if func == "negate":
-            temp = -1*float(textVal)
+            temp = -1*Decimal(textVal)
             funcTempString = f"negate({textVal})"
 
 
-        if "=" in self.userString:
+        #If no arithmetic operators are in the opBox, replace the previous funcKey command from the userString
+        if any(ar_op not in self.userString for ar_op in self.opList[1:5]):
             self.userString = funcTempString
+            #removes previous answer from the function string to be evaluated
+            n = len(textVal)
+            self.functionString = self.functionString[:-n]
         else:
             self.userString += funcTempString
 
@@ -97,6 +102,10 @@ class helperCommands():
         #don't allow button to be pressed
         if len(self.userString) > 0  and self.userString[-1] == i and i in self.opList:
             return                
+
+        #prevents numbers from being placed after funcKey without an arithmetic operation
+        if "(" in self.userString or ")" in self.userString and i not in self.opList[1:5]:
+            return
 
         #fix mult and div for eval
         funcVal = i
@@ -125,10 +134,11 @@ class helperCommands():
 
         if str(i).isdigit() or i == ".":
             #Allows number to stay in textBox until another number is clicked
-            for operation in self.opList:
-                if operation in self.userString and operation != ".":
+            for operation in self.opList[1:]:
+                if operation in self.userString:
                     self.clear()
             textVal = self.gui.textBox.get()
+
 
             #If textbox is just 0, don't add more 0's
             if textVal == "0":
@@ -136,9 +146,9 @@ class helperCommands():
             #Keep 0 if i is a decimal point
             if textVal == "" and i == ".":
                 textVal = "0"
-                self.userString = "0."
+                #deletes . from click and add preceding 0 to decimal
+                self.userString = self.userString[:-1] + "0."
                 self.gui.opBox.config(text = self.userString)
-                #self.functionString = "0."
             self.clear()
             self.gui.textBox.insert("end", textVal + str(i))
 
@@ -149,7 +159,7 @@ class helperCommands():
         if "=" in self.userString:
             return
         first = self.gui.textBox.get()
-        self.first_num = float(first)
+        self.first_num = Decimal(first)
         
     #Sets operations for addition, subtraction, multiplication, and division
     def arith(self, op):
@@ -163,7 +173,7 @@ class helperCommands():
 
         self.result = eval(self.functionString)
         self.clear()
-        self.gui.textBox.insert("end", f"{self.result:.0f}")
+        self.gui.textBox.insert("end", f"{self.result}")
         self.first_num = self.result
         self.math = FALSE
         self.click("=")
