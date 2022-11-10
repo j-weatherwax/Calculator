@@ -1,5 +1,6 @@
-import matplotlib.colors as plt
 import colorsys
+import matplotlib.colors as plt
+
 
 #Makes color of buttons darker when hovered over or pressed
 def make_darker(color, percent):

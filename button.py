@@ -1,5 +1,6 @@
-from commands import *
 from coloredit import *
+from commands import *
+
 
 #darkens button color on hover and reverts color on leave
 class hover():

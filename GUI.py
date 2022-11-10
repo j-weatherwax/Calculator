@@ -1,8 +1,9 @@
 from tkinter import *
-from button import hover, buttonGrid
-from commands import *
-from coloredit import *
 import tksvg
+from button import buttonGrid, hover
+from coloredit import *
+from commands import *
+
 
 class GUI():
     def __init__(self):

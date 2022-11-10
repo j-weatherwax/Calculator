@@ -1,6 +1,6 @@
-from tkinter import *
-from math import sqrt
 from decimal import *
+from math import sqrt
+from tkinter import *
 
 class helperCommands():
     def __init__(self, gui):
@@ -46,13 +46,17 @@ class helperCommands():
         self.gui.textBox.insert("end", "0")
         return
 
+    #If backspace is pressed, remove last character from userString and functionString
     def back(self):
         textVal = self.gui.textBox.get()
-        self.clear()
-        self.gui.textBox.insert("end", textVal[:-1])
-        self.userString = self.userString[:-1]
-        self.gui.opBox.config(text = self.userString)
-        self.functionString = self.functionString[:-1]
+        #if last character is digit, delete from textbox also
+        if len(textVal) > 0:
+            if all(ar_op not in self.userString for ar_op in self.opList[1:5]):
+                self.clear()
+                self.gui.textBox.insert("end", textVal[:-1])
+            self.userString = self.userString[:-1]
+            self.gui.opBox.config(text = self.userString)
+            self.functionString = self.functionString[:-1]
         return
 
     def funcKey(self, func):
@@ -81,21 +85,31 @@ class helperCommands():
 
 
         #If no arithmetic operators are in the opBox, replace the previous funcKey command from the userString
-        if any(ar_op not in self.userString for ar_op in self.opList[1:5]):
+        if any(ar_op in self.userString for ar_op in self.opList[1:5]):
+            self.userString += funcTempString
+        else:
             self.userString = funcTempString
             #removes previous answer from the function string to be evaluated
             n = len(textVal)
             self.functionString = self.functionString[:-n]
-        else:
-            self.userString += funcTempString
 
 
         self.gui.opBox.config(text = self.userString)
         #adds temp to functionString
         self.functionString += str(temp)
         self.clear()
-        self.gui.textBox.insert("end", f"{temp}")#:.0f}")
+        self.gui.textBox.insert("end", f"{temp}")
         return
+
+
+    def funcOpFix(self, i):
+        #fix multiplication and division operators for eval function
+        funcVal = i
+        if i == "×":
+            funcVal = "*"
+        elif i == "÷":
+            funcVal = "/"
+        return funcVal
 
     def click(self, i):
         #if operation in oplist already exists in the user string,
@@ -103,16 +117,24 @@ class helperCommands():
         if len(self.userString) > 0  and self.userString[-1] == i and i in self.opList:
             return                
 
-        #prevents numbers from being placed after funcKey without an arithmetic operation
-        if "(" in self.userString or ")" in self.userString and i not in self.opList[1:5]:
+        #prevents user from typing 0 where there are no other entries in the userString. Ensures errors do not occur with decimal handling
+        if len(self.userString) == 0 and str(i) == "0":
             return
 
-        #fix mult and div for eval
-        funcVal = i
-        if i == "×":
-            funcVal = "*"
-        elif i == "÷":
-            funcVal = "/"
+        #prevents numbers from being placed after funcKey without an arithmetic operation
+        if "(" in self.userString and str(i).isdigit() and all(ar_op not in self.userString for ar_op in self.opList[1:5]):
+            return
+
+        #If user presses different arithmetic operator after one already exists in the userString, replace the operator with the newly clicked operation
+        #Ex. 3+ becomes 3- when - is clicked
+        if len(self.userString) > 0 and self.userString[-1] in self.opList[1:5] and i in self.opList[1:5]:
+            self.userString = self.userString[:-1] + i
+            funcVal = self.funcOpFix(i)
+            self.functionString = self.functionString[:-1] + funcVal
+            self.gui.opBox.config(text = self.userString)
+            return
+
+        funcVal = self.funcOpFix(i)
         self.functionString += str(funcVal)
 
         #Writes to opBox
